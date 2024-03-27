@@ -9,8 +9,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+//using System.Windows.Shapes;
 using System.Data.SqlClient;
+using System.IO.Packaging;
+using System.IO;
 
 namespace SQLinEFcore_hw
 {
@@ -35,14 +37,14 @@ namespace SQLinEFcore_hw
             }
             else
             {
-                MessageBox.Show("Product must have Name", "Error");
+                MessageBox.Show("Product must have Name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             double price;
             if (!double.TryParse(ProductPrice.Text, out price))
             {
-                MessageBox.Show("Product must have price and it must be numeric value", "Error");
+                MessageBox.Show("Product must have price and it must be numeric value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -53,7 +55,7 @@ namespace SQLinEFcore_hw
                 .ToListAsync();
             if (!categoriesNames.Contains(ProductCategory.Text))
             {
-                MessageBox.Show("Product must have category that already exists", "Error");
+                MessageBox.Show("Product must have category that already exists", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             string productCategory = ProductCategory.Text;
@@ -106,7 +108,7 @@ namespace SQLinEFcore_hw
             {
                 if (!categoriesNames.Contains(ProductCategory.Text))
                 {
-                    MessageBox.Show("Product must have category that already exists", "Error");
+                    MessageBox.Show("Product must have category that already exists", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (ProductKeyWord.Text != "")
@@ -123,7 +125,7 @@ namespace SQLinEFcore_hw
             }
             else
             {
-                MessageBox.Show("You have to fill category before adding key word", "Error");
+                MessageBox.Show("You have to fill category before adding key word", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -136,7 +138,7 @@ namespace SQLinEFcore_hw
             }
             else
             {
-                MessageBox.Show("User must have Name", "Error");
+                MessageBox.Show("User must have Name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -147,7 +149,7 @@ namespace SQLinEFcore_hw
             }
             else
             {
-                MessageBox.Show("User must have login", "Error");
+                MessageBox.Show("User must have login", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -161,13 +163,13 @@ namespace SQLinEFcore_hw
                 }
                 else
                 {
-                    MessageBox.Show("Password is to easy, it must more than 8 characters has at least one number, one uppercase letter and one lowercase letter", "Error");
+                    MessageBox.Show("Password is to easy, it must more than 8 characters has at least one number, one uppercase letter and one lowercase letter", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
             else
             {
-                MessageBox.Show("User must have password", "Error");
+                MessageBox.Show("User must have password", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -181,13 +183,13 @@ namespace SQLinEFcore_hw
                 }
                 else
                 {
-                    MessageBox.Show("Email is not valid", "Error");
+                    MessageBox.Show("Email is not valid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
             else
             {
-                MessageBox.Show("User must have email", "Error");
+                MessageBox.Show("User must have email", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -236,7 +238,7 @@ namespace SQLinEFcore_hw
 
             if (!productnames.Contains(UserProducts.Text))
             {
-                MessageBox.Show("User must have product that already exist", "Error");
+                MessageBox.Show("User must have product that already exist", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             if (UserProducts.Text != "")
@@ -250,7 +252,7 @@ namespace SQLinEFcore_hw
         {
             if (CategoryName.Text == "")
             {
-                MessageBox.Show("Category must have name", "Error");
+                MessageBox.Show("Category must have name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             using MyDbContext dbContext = new MyDbContext();
@@ -266,11 +268,11 @@ namespace SQLinEFcore_hw
                         Name = CategoryName.Text,
                     });
                 await dbContext.SaveChangesAsync();
-                MessageBox.Show("Category has been saved to Database", "Success");
+                MessageBox.Show("Category has been saved to Database", "Success", MessageBoxButton.OK, MessageBoxImage.Asterisk);
             }
             else
             {
-                MessageBox.Show("This category already exist in Database", "Error");
+                MessageBox.Show("This category already exist in Database", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             CategoryName.Text = "";
         }
@@ -278,32 +280,103 @@ namespace SQLinEFcore_hw
 
         private async void CrereBackupForDb(object sender, RoutedEventArgs e)
         {
-            string databaseName = "NewBaseTest2"; 
-            string backupPath = @"E:\CyberByonicSystematics\"; 
+            string backupName = BackupName.Text;
+            if (backupName == "")
+            {
+                MessageBox.Show("Database backup must have name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            string databaseName = "NewBaseTest2";
+            string backupPath = @"E:\CyberByonicSystematics\Entity Framework Core\Homeworks\";
 
             try
             {
-                BackupDatabase(databaseName, backupPath);
-                MessageBox.Show("Database backup created", "Success");
+                BackupDatabase(databaseName, backupName, backupPath);
+                MessageBox.Show("Database backup created", "Success", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                BackupName.Text = "";
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error");
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
-        static void BackupDatabase(string databaseName, string backupPath)
+        static void BackupDatabase(string databaseName, string backupName, string backupPath)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
-            optionsBuilder.UseSqlServer("YourConnectionString"); // Підключення до SQL Server
-
             using (var context = new MyDbContext())
             {
-                string backupFileName = backupPath + databaseName + ".bak";
+                string backupFileName = backupPath + backupName + ".bak";
                 string backupQuery = $"BACKUP DATABASE [{databaseName}] TO DISK='{backupFileName}'";
 
                 context.Database.ExecuteSqlRaw(backupQuery);
             }
         }
+
+        private async void RestoreDb(object sender, RoutedEventArgs e)
+        {
+            string backupName = BackupRestoreName.Text;
+            if (backupName == "")
+            {
+                MessageBox.Show("Database backup must have name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            string databaseName = "NewBaseTest2";
+            string backupPath = @"E:\CyberByonicSystematics\Entity Framework Core\Homeworks\";
+            try
+            {
+                RestoreDatabase(databaseName, backupName, backupPath);
+                MessageBox.Show("Database restored", "Success", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        static void RestoreDatabase(string databaseName, string backupName, string backupPath)
+        {
+            using (var dbContext = new MyDbContext())
+            {
+                string closeConnectionsSql = $@"
+            USE [master];
+            ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;";
+
+                dbContext.Database.ExecuteSqlRaw(closeConnectionsSql);
+
+                string restoreSql = $@"
+            USE [master];
+            RESTORE DATABASE [{databaseName}] FROM DISK = '{backupPath}{backupName}.bak' WITH REPLACE;";
+
+                dbContext.Database.ExecuteSqlRaw(restoreSql);
+            }
+        }
+
+        private void ShowAvaliableBackups(object sender, RoutedEventArgs e)
+        {
+            string directoryPath = @"E:\CyberByonicSystematics\Entity Framework Core\Homeworks\"; 
+            string fileExtension = ".bak";
+
+            try
+            {
+                string[] files = Directory.GetFiles(directoryPath, "*" + fileExtension);
+
+                if (files.Length > 0)
+                {
+                    // Extract file names without full path
+                    string[] fileNames = files.Select(Path.GetFileName).ToArray();
+
+                    string filesList = string.Join(Environment.NewLine, fileNames);
+                    MessageBox.Show("Files with extension " + fileExtension + " in directory " + directoryPath + ":\n\n" + filesList, "Files Found", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("No files with extension " + fileExtension + " found in directory " + directoryPath, "Files Not Found", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
+    
 }

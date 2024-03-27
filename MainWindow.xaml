@@ -8,17 +8,19 @@
         Title="Add entityes to Database" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35*"/>
+            <RowDefinition Height="36*"/>
+            <RowDefinition Height="45*"/>
+            <RowDefinition Height="45*"/>
+            <RowDefinition Height="46*"/>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="45*"/>
-            <RowDefinition Height="45*"/>
-            <RowDefinition Height="45*"/>
-            <RowDefinition Height="40*"/>
             <RowDefinition Height="28*"/>
-            <RowDefinition Height="80*"/>
+            <RowDefinition Height="99*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="100*"/>
             <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="100*"/>
             <ColumnDefinition Width="25*"/>
@@ -73,12 +75,24 @@
 
         <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="11,10,0,0" TextWrapping="Wrap" Text="Category:" VerticalAlignment="Top" Width="68" Height="25" FontSize="16"/>
 
-        <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="11,1,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
+        <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
         <TextBox x:Name="CategoryName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="5" Height="28" VerticalAlignment="Top"/>
 
         <Button Grid.Column="5" Content="Add new category" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Width="100" Height="28" Click="AddCategoryToDb" />
-        <Button Grid.Column="5" Content="Create backup" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" Width="100" Height="28" Click="CrereBackupForDb" />
-        <!--<Button Grid.Column="5" Content="Recover Db" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" Width="100" Height="28" Click="RecoverDb" />-->
+
+
+
+        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,10,0,0" TextWrapping="Wrap" Text="Bacup:" VerticalAlignment="Top" Width="68" Height="25" FontSize="16"/>
+
+        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
+        <TextBox x:Name="BackupName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top"/>
+        <Button Grid.Column="7" Content="Create backup" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Width="100" Height="28" Click="CrereBackupForDb" />
+
+
+        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name backup:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3"/>
+        <TextBox x:Name="BackupRestoreName" Margin="0,17,0,0" Grid.Row="3" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top"/>
+        <Button Grid.Column="7" Content="Show backups" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" Width="75" Height="28" Click="ShowAvaliableBackups" />
+        <Button Grid.Column="7" Content="Recover" HorizontalAlignment="Right" Grid.Row="4" VerticalAlignment="Center" Width="75" Height="28" Click="RestoreDb" />
 
     </Grid>
 </Window>
