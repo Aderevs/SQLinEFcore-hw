@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Data.SqlClient;
 using System.IO.Packaging;
 using System.IO;
+using Microsoft.Data.SqlClient;
 
 namespace SQLinEFcore_hw
 {
@@ -28,7 +29,43 @@ namespace SQLinEFcore_hw
 
         List<Word> _keyParams = new();
         List<string> _productsNames = new();
-        private async void AddProductToDb(object sender, RoutedEventArgs e)
+        private async void ActionWithProduct(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (ProductAddRadio.IsChecked == true)
+                {
+                    await AddProductToDb();
+                }
+                else if (ProductUpdateRadio.IsChecked == true)
+                {
+                    await UpdateProductInDb();
+                }
+                else if (ProductDeleteRadio.IsChecked == true)
+                {
+                    await DeleteProductFromDb();
+                }
+                else
+                {
+                    MessageBox.Show("You have to choose an option", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            ProductName.Text = "";
+            ProductPrice.Text = "";
+            ProductDescription.Text = "";
+            ProductCategory.Text = "";
+            ProductKeyWord.Text = "";
+            IdentityProductName.Foreground = Brushes.Gray;
+            IdentityProductName.FontSize = 11;
+            IdentityProductName.Text = "Product to update or delete";
+        }
+
+        private async Task AddProductToDb()
         {
             string productName;
             if (ProductName.Text != "")
@@ -91,12 +128,125 @@ namespace SQLinEFcore_hw
             await dbContext.SaveChangesAsync();
             _keyParams.Clear();
             MessageBox.Show("Product has been saved to Database", "Success");
-            ProductName.Text = "";
-            ProductPrice.Text = "";
-            ProductDescription.Text = "";
-            ProductCategory.Text = "";
-            ProductKeyWord.Text = "";
         }
+        private async Task UpdateProductInDb()
+        {
+            if (IdentityProductName.Text != "")
+            {
+                using MyDbContext dbContext = new MyDbContext();
+                bool IsAnyFieldToUpdate = false;
+
+                if (ProductPrice.Text != "")
+                {
+                    if (double.TryParse(ProductPrice.Text, out double price))
+                    {
+                        await dbContext.Database.ExecuteSqlRawAsync($"UPDATE Product SET Price = {price} WHERE Name = '{IdentityProductName.Text}'");
+                        IsAnyFieldToUpdate = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Price you enter is not valid it has to be numeric type", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                if (ProductDescription.Text != "")
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"UPDATE Product SET Description = {ProductDescription.Text} WHERE Name = '{IdentityProductName.Text}'");
+                    IsAnyFieldToUpdate = true;
+                }
+                if (ProductCategory.Text != "")
+                {
+                    Guid productCategoryId;
+                    try
+                    {
+                        productCategoryId = await dbContext.Category
+                        .Where(c => c.Name == ProductCategory.Text)
+                        .Select(c => c.Id)
+                        .FirstAsync();
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        MessageBox.Show("You have to enter name of category that already exist", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    await dbContext.Database.ExecuteSqlRawAsync($"UPDATE Product SET CategoryId = {productCategoryId} WHERE Name = '{IdentityProductName.Text}'");
+                    IsAnyFieldToUpdate = true;
+                }
+                if (_keyParams.Any())
+                {
+                    var productId = await dbContext.Product
+                        .Where(p => p.Name == IdentityProductName.Text)
+                        .Select(p => p.Id)
+                        .FirstAsync();
+
+                    var wordIdsToDelete = await dbContext.KeyLink
+                        .Where(kl => kl.ProductId == productId)
+                        .Select(kl => kl.KeyWordsId)
+                        .ToArrayAsync();
+                    if (wordIdsToDelete.Length > 0)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        foreach (var wordId in wordIdsToDelete)
+                        {
+                            sb.Append($"'{wordId}', ");
+                        }
+                        var wordIdsToDeleteString = sb.ToString();
+                        wordIdsToDeleteString = wordIdsToDeleteString.Substring(0, wordIdsToDeleteString.Length - 2);
+                        await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM Word WHERE Id IN ({wordIdsToDeleteString})");
+                    }
+                    foreach (Word word in _keyParams)
+                    {
+                        dbContext.Add(word);
+                    }
+                    foreach (Word word in _keyParams)
+                    {
+                        dbContext.Add(
+                            new KeyParams
+                            {
+                                Id = Guid.NewGuid(),
+                                ProductId = productId,
+                                KeyWordsId = word.Id
+                            });
+                    }
+
+                }
+                if (ProductName.Text != "")
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"UPDATE Product SET Name = {ProductName.Text} WHERE Name = '{IdentityProductName.Text}'");
+                    IsAnyFieldToUpdate = true;
+                }
+                if (!IsAnyFieldToUpdate)
+                {
+                    MessageBox.Show("You didn't enter any field to update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                await dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                MessageBox.Show("You have to enter name of product you want to update to field \"Identity name of product\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task DeleteProductFromDb()
+        {
+            if (IdentityProductName.Text != "")
+            {
+                using MyDbContext dbContext = new MyDbContext();
+                var name = IdentityProductName.Text;
+                if (dbContext.Product.Where(p => p.Name == name).FirstOrDefault() != null)
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM Product WHERE Name = '{name}'");
+                    MessageBox.Show("Product was deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                }
+                else
+                {
+                    MessageBox.Show("There are no products in database with such name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("You have to enter name of product you want to delete to field \"Identity name of product\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private async void AddKeyWord(object sender, RoutedEventArgs e)
         {
             using MyDbContext dbContext = new MyDbContext();
@@ -129,7 +279,60 @@ namespace SQLinEFcore_hw
             }
         }
 
-        private async void AddUserToDb(object sender, RoutedEventArgs e)
+        private async void ActionWithUser(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (UserAddRadio.IsChecked == true)
+                {
+                    await AddUserToDb();
+                }
+                else if (UserUpdateRadio.IsChecked == true)
+                {
+                    await UpdateUserInDb();
+                }
+                else if (UserDeleteRadio.IsChecked == true)
+                {
+                    await DeleteUserFromDb();
+                }
+                else
+                {
+                    MessageBox.Show("You have to choose an option", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            UserName.Text = "";
+            UserLogin.Text = "";
+            UserPassword.Text = "";
+            UserEmail.Text = "";
+            UserProducts.Text = "";
+            IdentityUserLogin.Foreground = Brushes.Gray;
+            IdentityUserLogin.FontSize = 11;
+            IdentityUserLogin.Text = "User to update or delete";
+        }
+        private async void AddUsersProduct(object sender, RoutedEventArgs e)
+        {
+            using MyDbContext dbContext = new MyDbContext();
+            var productnames = await dbContext.Product
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            if (!productnames.Contains(UserProducts.Text))
+            {
+                MessageBox.Show("User must have product that already exist", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (UserProducts.Text != "")
+            {
+                _productsNames.Add(UserProducts.Text);
+                UserProducts.Text = "";
+            }
+        }
+
+        private async Task AddUserToDb()
         {
             string userName;
             if (UserName.Text != "")
@@ -223,32 +426,123 @@ namespace SQLinEFcore_hw
             await dbContext.SaveChangesAsync();
             _productsNames.Clear();
             MessageBox.Show("User has been saved to Database", "Success");
-            UserName.Text = "";
-            UserLogin.Text = "";
-            UserPassword.Text = "";
-            UserEmail.Text = "";
-            UserProducts.Text = "";
         }
-        private async void AddUsersProduct(object sender, RoutedEventArgs e)
+        private async Task DeleteUserFromDb()
         {
-            using MyDbContext dbContext = new MyDbContext();
-            var productnames = await dbContext.Product
-                .Select(p => p.Name)
-                .ToListAsync();
-
-            if (!productnames.Contains(UserProducts.Text))
+            if (IdentityUserLogin.Text != "")
             {
-                MessageBox.Show("User must have product that already exist", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                using MyDbContext dbContext = new MyDbContext();
+                var login = IdentityUserLogin.Text;
+                if (dbContext.User.Where(u => u.Login == login).FirstOrDefault() != null)
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM [User] WHERE Login = '{login}'");
+                    MessageBox.Show("User was deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                }
+                else
+                {
+                    MessageBox.Show("There are no users in database with such login", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            if (UserProducts.Text != "")
+            else
             {
-                _productsNames.Add(UserProducts.Text);
-                UserProducts.Text = "";
+                MessageBox.Show("You have to enter login of user you want to delete to field \"Identity user's login\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task UpdateUserInDb()
+        {
+            if (IdentityUserLogin.Text != "")
+            {
+                using MyDbContext dbContext = new MyDbContext();
+                bool IsAnyFieldToUpdate = false;
+
+                if (UserName.Text != "")
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"UPDATE [User] SET Name = {UserName.Text} WHERE Login = '{IdentityUserLogin.Text}'");
+                    IsAnyFieldToUpdate = true;
+                }
+
+                if (UserPassword.Text != "")
+                {
+                    Regex passwordCheck = new Regex(@"(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
+                    string userPassword;
+                    if (UserPassword.Text != "")
+                    {
+                        if (passwordCheck.IsMatch(UserPassword.Text))
+                        {
+                            userPassword = UserPassword.Text;
+                            await dbContext.Database.ExecuteSqlRawAsync($"UPDATE [User] SET Password = {userPassword} WHERE Login = '{IdentityUserLogin.Text}'");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Password is to easy, it must more than 8 characters has at least one number, one uppercase letter and one lowercase letter", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                }
+
+                if (UserEmail.Text != "")
+                {
+                    Regex emailCheck = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+                    if (UserEmail.Text != "")
+                    {
+                        if (emailCheck.IsMatch(UserEmail.Text))
+                        {
+                            string userEmail = UserEmail.Text;
+                            await dbContext.Database.ExecuteSqlRawAsync($"UPDATE [User] SET Email = {userEmail} WHERE Login = '{IdentityUserLogin.Text}'");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Email is not valid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                }
+
+                if (_productsNames.Any())
+                {
+                    var userId = await dbContext.User
+                        .Where(u => u.Login == IdentityUserLogin.Text)
+                        .Select(u => u.Id)
+                        .FirstAsync();
+
+
+                    await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM Cart WHERE UserId = '{userId}'");
+
+                    foreach (var productName in _productsNames)
+                    {
+                        var productId = await dbContext.Product
+                            .Where(p => p.Name == productName)
+                            .Select(p => p.Id)
+                            .FirstAsync();
+                        dbContext.Add(
+                            new Cart
+                            {
+                                Id = Guid.NewGuid(),
+                                UserId = userId,
+                                ProductId = productId
+                            });
+                    }
+
+                }
+
+                if (UserLogin.Text != "")
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync($"UPDATE [User] SET Login = {UserLogin.Text} WHERE Login = '{IdentityUserLogin.Text}'");
+                    IsAnyFieldToUpdate = true;
+                }
+                if (!IsAnyFieldToUpdate)
+                {
+                    MessageBox.Show("You didn't enter any field to update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                await dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                MessageBox.Show("You have to enter login of user you want to update to field \"Identity user's login\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private async void AddCategoryToDb(object sender, RoutedEventArgs e)
+        private async void ActionWithCategory(object sender, RoutedEventArgs e)
         {
             if (CategoryName.Text == "")
             {
@@ -352,7 +646,7 @@ namespace SQLinEFcore_hw
 
         private void ShowAvaliableBackups(object sender, RoutedEventArgs e)
         {
-            string directoryPath = @"E:\CyberByonicSystematics\Entity Framework Core\Homeworks\"; 
+            string directoryPath = @"E:\CyberByonicSystematics\Entity Framework Core\Homeworks\";
             string fileExtension = ".bak";
 
             try
@@ -377,6 +671,46 @@ namespace SQLinEFcore_hw
                 MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void IdentityProductName_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (IdentityProductName.FontSize == 11)
+            {
+                IdentityProductName.Text = "";
+                IdentityProductName.Foreground = Brushes.Black;
+                IdentityProductName.FontSize = 12;
+            }
+        }
+
+        private void IdentityProductName_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (IdentityProductName.Text == "")
+            {
+                IdentityProductName.Text = "Product to update or delete";
+                IdentityProductName.Foreground = Brushes.Gray;
+                IdentityProductName.FontSize = 11;
+            }
+        }
+
+        private void IdentityUserlogin_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (IdentityUserLogin.FontSize == 11)
+            {
+                IdentityUserLogin.Text = "";
+                IdentityUserLogin.Foreground = Brushes.Black;
+                IdentityUserLogin.FontSize = 12;
+            }
+        }
+
+        private void IdentityUserlogin_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (IdentityUserLogin.Text == "")
+            {
+                IdentityUserLogin.Text = "User to update or delete";
+                IdentityUserLogin.Foreground = Brushes.Gray;
+                IdentityUserLogin.FontSize = 11;
+            }
+        }
     }
-    
+
 }

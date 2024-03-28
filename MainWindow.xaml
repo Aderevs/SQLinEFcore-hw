@@ -8,15 +8,18 @@
         Title="Add entityes to Database" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="36*"/>
+            <RowDefinition Height="33*"/>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="46*"/>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="45*"/>
-            <RowDefinition Height="45*"/>
-            <RowDefinition Height="28*"/>
-            <RowDefinition Height="99*"/>
+            <RowDefinition Height="75*"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="5"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25*"/>
@@ -29,70 +32,87 @@
             <ColumnDefinition Width="100*"/>
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0,10,0,0" TextWrapping="Wrap" Text="Product:" VerticalAlignment="Top" Width="68" Height="26" FontSize="16"/>
+        <TextBlock HorizontalAlignment="Left" Margin="38,10,0,0" TextWrapping="Wrap" Text="Product:" VerticalAlignment="Top" Width="68" Height="26" FontSize="16" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Margin="0,1,0,0" Grid.Row="1"/>
-        <TextBox x:Name="ProductName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Height="28"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17"  Grid.Row="1" Margin="10,1,0,0" Grid.Column="1"/>
+        <TextBox x:Name="ProductName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="1"/>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Price:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="2"/>
-        <TextBox x:Name="ProductPrice" Margin="0,17,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="1"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Price:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="2" Margin="10,1,0,0" Grid.Column="1"/>
+        <TextBox x:Name="ProductPrice" Margin="0,17,0,0" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" />
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Desctiption:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3"/>
-        <TextBox x:Name="ProductDescription" Margin="0,18,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Height="28"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Column="1" Text="Desctiption:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3" Margin="10,1,0,0" />
+        <TextBox x:Name="ProductDescription" Margin="0,18,0,0" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" />
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Category:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="4"/>
-        <TextBox x:Name="ProductCategory" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Height="28" Margin="0,17,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Category:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="4" Margin="10,1,0,0" Grid.Column="1"/>
+        <TextBox x:Name="ProductCategory" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Margin="0,17,0,0" Grid.Column="1"/>
 
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Key words:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="5" Margin="0,1,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Key words:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="5" Margin="10,1,0,0" Grid.Column="1"/>
         <TextBox x:Name="ProductKeyWord" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Height="28" Margin="28,17,0,0"/>
         <Button Grid.Column="1" Content="+" HorizontalAlignment="Left" Margin="0,17,0,0" Grid.Row="5" VerticalAlignment="Top" Width="28" Height="28" FontSize="16" Click="AddKeyWord"/>
 
-        <Button Grid.Column="1" Content="Add new product" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Width="100" Height="28" Click="AddProductToDb"/>
+        <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,10,0,0">
+            <RadioButton Name="ProductAddRadio" Content="Add" HorizontalAlignment="Left"  Grid.Row="6" VerticalAlignment="Top" Height="15" Width="41" Grid.Column="1"/>
+            <RadioButton Name="ProductUpdateRadio" Content="Update" HorizontalAlignment="Left" Margin="0,5,0,0" Grid.Row="6" VerticalAlignment="Top" Height="15" Width="58" Grid.Column="1"/>
+            <RadioButton Name="ProductDeleteRadio" Content="Delete" HorizontalAlignment="Left" Margin="0,5,0,0" Grid.Row="6" VerticalAlignment="Top" Height="15" Width="53" Grid.Column="1"/>
+        </StackPanel>
+
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Identity name of product:" VerticalAlignment="Top" Width="auto" Height="17" Grid.Row="8" Margin="0,0,0,0" Grid.Column="1"/>
+        <TextBox x:Name="IdentityProductName" Margin="0,18,0,0" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="1" GotFocus="IdentityProductName_GotFocus" Text="Product to update or delete" Foreground="Gray" FontSize="11" LostFocus="IdentityProductName_LostFocus"/>
+
+
+        <Button Grid.Column="1" Content="Action" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center" Width="100" Height="28" Click="ActionWithProduct"/>
 
 
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" Margin="11,10,0,0" TextWrapping="Wrap" Text="User:" VerticalAlignment="Top" Width="68" Height="19" FontSize="16"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="User:" VerticalAlignment="Center" Width="68" Height="19" FontSize="16"/>
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
-        <TextBox x:Name="UserName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="3" Height="28" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" Margin="10,1,0,27" TextWrapping="Wrap" Text="Name:" Width="68" Grid.Row="1"/>
+        <TextBox x:Name="UserName" Margin="0,17,38,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="3" Height="28" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Login:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="2" Margin="11,0,0,0"/>
-        <TextBox x:Name="UserLogin" Margin="0,17,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="3"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Login:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="2" Margin="10,1,0,0"/>
+        <TextBox x:Name="UserLogin" Margin="0,17,38,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="3" Grid.ColumnSpan="2"/>
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Password:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3" Margin="11,0,0,0"/>
-        <TextBox x:Name="UserPassword" Margin="0,17,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Password:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3" Margin="10,1,0,0"/>
+        <TextBox x:Name="UserPassword" Margin="0,17,38,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28" Grid.ColumnSpan="2"/>
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Email:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="4" Margin="11,0,0,0"/>
-        <TextBox x:Name="UserEmail" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28" Margin="0,17,0,0"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Email:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="4" Margin="10,1,0,0"/>
+        <TextBox x:Name="UserEmail" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28" Margin="0,17,38,0" Grid.ColumnSpan="2"/>
 
-        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Products:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="5" Margin="0,1,0,0"/>
-        <TextBox x:Name="UserProducts" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28" Margin="28,17,0,0"/>
+        <TextBlock Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Products:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="5" Margin="10,1,0,0"/>
+        <TextBox x:Name="UserProducts" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="3" Height="28" Margin="28,17,38,0" Grid.ColumnSpan="2"/>
         <Button Grid.Column="3" Content="+" HorizontalAlignment="Left" Margin="0,17,0,0" Grid.Row="5" VerticalAlignment="Top" Width="28" Height="28" FontSize="16" Click="AddUsersProduct"/>
 
-        <Button Grid.Column="3" Content="Add new user" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Width="100" Height="28" Click="AddUserToDb" />
+        <StackPanel Grid.Row="6" Grid.Column="3" Margin="0,10,0,0">
+            <RadioButton Name="UserAddRadio" Content="Add" HorizontalAlignment="Left" Grid.Row="6" VerticalAlignment="Top" Height="15" Width="41" Grid.Column="1"/>
+            <RadioButton Name="UserUpdateRadio" Content="Update" HorizontalAlignment="Left" Margin="0,5,0,0" Grid.Row="6" VerticalAlignment="Top" Height="15" Width="58" Grid.Column="1"/>
+            <RadioButton Name="UserDeleteRadio" Content="Delete" HorizontalAlignment="Left" Margin="0,5,0,0" Grid.Row="6" VerticalAlignment="Top" Height="15" Width="53" Grid.Column="1"/>
+        </StackPanel>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Identity user's login:" VerticalAlignment="Top" Width="auto" Height="17" Grid.Row="8" Margin="0,0,0,0" Grid.Column="3"/>
+        <TextBox x:Name="IdentityUserLogin" Margin="0,18,0,0" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Top" Height="28" Grid.Column="3" Text="User to update or delete" FontSize="11" Foreground="Gray" GotFocus="IdentityUserlogin_GotFocus" LostFocus="IdentityUserlogin_LostFocus"/>
 
+        <Button Grid.Column="3" Content="Action" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center" Width="100" Height="28" Click="ActionWithUser"/>
 
 
         <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="11,10,0,0" TextWrapping="Wrap" Text="Category:" VerticalAlignment="Top" Width="68" Height="25" FontSize="16"/>
 
-        <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
-        <TextBox x:Name="CategoryName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="5" Height="28" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="5" HorizontalAlignment="Left" Margin="10,1,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
+        <TextBox x:Name="CategoryName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="5" Height="28" VerticalAlignment="Top" />
 
-        <Button Grid.Column="5" Content="Add new category" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Width="100" Height="28" Click="AddCategoryToDb" />
+        <Button Grid.Column="5" Content="Add new category" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Width="100" Height="28" Click="ActionWithCategory" />
 
 
 
         <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,10,0,0" TextWrapping="Wrap" Text="Bacup:" VerticalAlignment="Top" Width="68" Height="25" FontSize="16"/>
 
-        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
-        <TextBox x:Name="BackupName" Margin="0,17,0,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="10,1,0,0" TextWrapping="Wrap" Text="Name:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="1"/>
+        <TextBox x:Name="BackupName" Margin="0,17,38,0" Grid.Row="1" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
         <Button Grid.Column="7" Content="Create backup" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Width="100" Height="28" Click="CrereBackupForDb" />
 
 
-        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="11,0,0,0" TextWrapping="Wrap" Text="Name backup:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="3"/>
-        <TextBox x:Name="BackupRestoreName" Margin="0,17,0,0" Grid.Row="3" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top"/>
+        <TextBlock Grid.Column="7" HorizontalAlignment="Left" Margin="10,44,0,0" TextWrapping="Wrap" Text="Name backup:" VerticalAlignment="Top" Width="68" Height="17" Grid.Row="2" Grid.RowSpan="2"/>
+        <TextBox x:Name="BackupRestoreName" Margin="0,17,38,0" Grid.Row="3" TextWrapping="Wrap" Grid.Column="7" Height="28" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
         <Button Grid.Column="7" Content="Show backups" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" Width="75" Height="28" Click="ShowAvaliableBackups" />
-        <Button Grid.Column="7" Content="Recover" HorizontalAlignment="Right" Grid.Row="4" VerticalAlignment="Center" Width="75" Height="28" Click="RestoreDb" />
+        <Button Grid.Column="7" Content="Reset" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" Width="75" Height="28" Click="RestoreDb" Grid.ColumnSpan="2" Margin="77,0,0,0" />
 
     </Grid>
 </Window>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,7 +57,8 @@ namespace SQLinEFcore_hw
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer("Server=localhost\\SQLEXPRESS;Database=NewBaseTest2;Trusted_Connection=True;TrustServerCertificate=True;");
+                .UseSqlServer("Server=localhost\\SQLEXPRESS;Database=NewBaseTest2;Trusted_Connection=True;TrustServerCertificate=True;")
+                .LogTo(e=>Debug.WriteLine(e));
         }
     }
 }
